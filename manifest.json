@@ -1,10 +1,15 @@
-[
-  {
-    "id": "pikahd",
-    "name": "PikaHD Provider",
-    "filename": "providers/pikahd.js",
-    "supportedTypes": ["movie", "tv"],
-    "enabled": true
-  }
-]
-
+{
+  "name": "My Custom Extensions",
+  "id": "my.custom.pikahd.repo",
+  "version": "1.0.0",
+  "author": "Android Mobile User",
+  "providers": [
+    {
+      "id": "pikahd",
+      "name": "PikaHD Provider",
+      "filename": "providers/pikahd.js",
+      "supportedTypes": ["movie", "tv"],
+      "enabled": true
+    }
+  ]
+}
