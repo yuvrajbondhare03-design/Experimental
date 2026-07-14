@@ -1,17 +1,13 @@
 {
-  "name": "My Custom Extensions",
-  "id": "my.custom.pikahd.repo",
+  "name": "Experimental PikaHD Repo",
+  "id": "experimental.pikahd.repo",
   "version": "1.0.0",
-  "author": "Android Mobile User",
+  "description": "Custom streaming repository featuring PikaHD Provider",
   "providers": [
     {
-      "id": "pikahd",
+      "id": "pikahd-provider",
       "name": "PikaHD Provider",
-      "filename": "providers/pikahd.js",
-      "supportedTypes": ["movie", "tv"],
-      "enabled": true,
-      "hasSettings": false,
-      "formats": ["mp4", "mkv", "m3u8"]
+      "file": "provider/pikahd.js"
     }
   ]
 }
