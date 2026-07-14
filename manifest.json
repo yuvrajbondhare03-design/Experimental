@@ -1,0 +1,10 @@
+[
+  {
+    "id": "pikahd",
+    "name": "PikaHD Provider",
+    "filename": "providers/pikahd.js",
+    "supportedTypes": ["movie", "tv"],
+    "enabled": true
+  }
+]
+
