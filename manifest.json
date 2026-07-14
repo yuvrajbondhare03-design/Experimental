@@ -9,7 +9,9 @@
       "name": "PikaHD Provider",
       "filename": "providers/pikahd.js",
       "supportedTypes": ["movie", "tv"],
-      "enabled": true
+      "enabled": true,
+      "hasSettings": false,
+      "formats": ["mp4", "mkv", "m3u8"]
     }
   ]
 }
