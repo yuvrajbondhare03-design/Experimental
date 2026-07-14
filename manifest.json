@@ -7,7 +7,7 @@
     {
       "id": "pikahd",
       "name": "PikaHD Provider",
-      "filename": "provider/pikahd.js",
+      "filename": "providers/pikahd.js",
       "supportedTypes": ["movie", "tv"],
       "enabled": true,
       "hasSettings": false,
