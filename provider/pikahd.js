@@ -1,40 +1,64 @@
 function getStreams(tmdbId, mediaType, season, episode) {
-    const baseUrl = 'https://pikahd.co';
-    const searchUrl = baseUrl + '/?s=' + tmdbId;
-    
-    const requestHeaders = {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36'
+    const mirrors = [
+        'https://pikahd.com',
+        'https://pikahd.eu',
+        'https://pikahd.atlaq.com',
+        'https://new.pikahd.co'
+    ];
+
+    const headers = {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
     };
 
-    return fetch(searchUrl, { headers: requestHeaders })
-        .then(function(searchResponse) {
-            return searchResponse.text();
-        })
-        .then(function(searchText) {
-            // Find the link to the media page using simple text positioning
-            const matchIndex = searchText.indexOf('class="result-item"');
-            if (matchIndex === -1) return [];
+    const searchUrl = mirrors.find(mirror => {
+        const testUrl = `\( {mirror}?s= \){tmdbId}`;
+        return fetch(testUrl, { headers }).then(r => r.ok).catch(() => false);
+    }) || mirrors[0];
 
-            const hrefIndex = searchText.indexOf('href="', matchIndex);
-            if (hrefIndex === -1) return [];
+    const params = new URLSearchParams({ s: tmdbId });
+    const fullSearchUrl = `\( {searchUrl}? \){params.toString()}`;
 
-            const startUrl = hrefIndex + 6;
-            const endUrl = searchText.indexOf('"', startUrl);
-            return searchText.substring(startUrl, endUrl);
-        })
-        .then(function(pageLink) {
-            if (!pageLink || pageLink === '') return [];
-            return fetch(pageLink, { headers: requestHeaders })
-                .then(function(pageResponse) {
-                    return pageResponse.text();
-                });
-        })
-        .then(function(pageHtml) {
-            if (!pageHtml) return [];
-            
-            const discoveredStreams = [];
-            let position = 0;
+    return fetch(fullSearchUrl, { headers })
+        .then(r => r.text())
+        .then(html => {
+            // Extract first result link (most sites use .result-item class)
+            const linkMatch = html.match(/href=["']\/([^"']+)/);
+            if (!linkMatch) return [];
 
+            const pageLink = linkMatch[1].startsWith('http') 
+                ? linkMatch[1] 
+                : `\( {searchUrl.replace(/\/[^\/]* \)/, '')}/${linkMatch[1]}`;
+
+            return fetch(pageLink, { headers }).then(r => r.text());
+        })
+        .then(html => {
+            const streams = [];
+
+            // Extract iframe / player / embed video links
+            const iframeRegex = /<iframe[^>]+src=["']([^"']+)["']|data-src=["']([^"']+)["']|src=["']([^"']+player[^"']+)["']/g;
+            let match;
+            while ((match = iframeRegex.exec(html)) !== null) {
+                let videoUrl = match[1] || match[2] || match[3];
+                if (!videoUrl) continue;
+
+                videoUrl = videoUrl.replace(/&amp;/g, '&');
+
+                if (videoUrl.includes('player') || videoUrl.includes('embed') || videoUrl.includes('.mp4')) {
+                    streams.push({
+                        name: "PikaHD Provider",
+                        title: `Mirror ${streams.length + 1}`,
+                        url: videoUrl,
+                        quality: "SD" // You can add better quality detection later
+                    });
+                }
+            }
+
+            return streams.length > 0 ? streams : [];
+        })
+        .catch(() => []);
+}
+
+module.exports = { getStreams };
             // Search through the page text to look for video link indicators
             while (true) {
                 let iframeIndex = pageHtml.indexOf('src="', position);
