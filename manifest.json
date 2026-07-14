@@ -1,13 +1,15 @@
 {
-  "name": "Experimental PikaHD Repo",
   "id": "experimental.pikahd.repo",
-  "version": "1.0.0",
+  "name": "Experimental PikaHD Repo",
   "description": "Custom streaming repository featuring PikaHD Plugin",
+  "version": "1.0.0",
   "providers": [
     {
       "id": "pikahd-plugin",
       "name": "PikaHD Plugin",
-      "file": "provider/pikahd.js"
+      "filename": "providers/pikahd.js",
+      "supportedTypes": ["movie", "tv"],
+      "enabled": true
     }
   ]
 }
