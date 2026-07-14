@@ -3,9 +3,12 @@
   "id": "experimental.pikahd.repo",
   "version": "1.0.0",
   "description": "Custom streaming repository featuring PikaHD Plugin",
-  "addons": [
+  "plugins": [
     {
-      "url": "https://githubusercontent.com"
+      "id": "pikahd-plugin",
+      "name": "PikaHD Plugin",
+      "filename": "providers/pikahd.js",
+      "type": "scraper"
     }
   ]
 }
