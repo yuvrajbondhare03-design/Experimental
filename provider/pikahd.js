@@ -7,34 +7,52 @@ function getStreams(tmdbId, mediaType, season, episode) {
     ];
 
     const headers = {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36'
     };
 
-    const searchUrl = mirrors.find(mirror => {
+    let found = false;
+    let mirrorUrl = '';
+
+    for (let mirror of mirrors) {
         const testUrl = `\( {mirror}?s= \){tmdbId}`;
-        return fetch(testUrl, { headers }).then(r => r.ok).catch(() => false);
-    }) || mirrors[0];
+        if (fetch(testUrl, { headers }).then(r => r.ok).catch(() => false)) {
+            found = true;
+            mirrorUrl = mirror;
+            break;
+        }
+    }
 
-    const params = new URLSearchParams({ s: tmdbId });
-    const fullSearchUrl = `\( {searchUrl}? \){params.toString()}`;
+    if (!found) {
+        mirrorUrl = mirrors[0];
+    }
 
-    return fetch(fullSearchUrl, { headers })
+    const fullUrl = `\( {mirrorUrl}?s= \){tmdbId}`;
+
+    return fetch(fullUrl, { headers })
         .then(r => r.text())
-        .then(html => {
-            // Extract first result link (most sites use .result-item class)
-            const linkMatch = html.match(/href=["']\/([^"']+)/);
-            if (!linkMatch) return [];
-
-            const pageLink = linkMatch[1].startsWith('http') 
-                ? linkMatch[1] 
-                : `\( {searchUrl.replace(/\/[^\/]* \)/, '')}/${linkMatch[1]}`;
-
-            return fetch(pageLink, { headers }).then(r => r.text());
-        })
         .then(html => {
             const streams = [];
 
-            // Extract iframe / player / embed video links
+            // Improved extraction for player/iframe links
+            const regex = /<iframe[^>]+src=["']([^"']+)["']|data-src=["']([^"']+)["']/g;
+            let match;
+            while ((match = regex.exec(html)) !== null) {
+                let url = match[1] || match[2];
+                if (url && (url.includes('player') || url.includes('embed') || url.includes('.mp4'))) {
+                    streams.push({
+                        name: "PikaHD Provider",
+                        title: `Mirror ${streams.length + 1}`,
+                        url: url
+                    });
+                }
+            }
+
+            return streams.length > 0 ? streams : [];
+        })
+        .catch(() => []);
+}
+
+module.exports = { getStreams };            // Extract iframe / player / embed video links
             const iframeRegex = /<iframe[^>]+src=["']([^"']+)["']|data-src=["']([^"']+)["']|src=["']([^"']+player[^"']+)["']/g;
             let match;
             while ((match = iframeRegex.exec(html)) !== null) {
