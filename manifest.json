@@ -3,7 +3,7 @@
   "id": "my.custom.pikahd.repo",
   "version": "1.0.0",
   "author": "Android Mobile User",
-  "plugins": [
+  "providers": [
     {
       "id": "pikahd",
       "name": "PikaHD Provider",
